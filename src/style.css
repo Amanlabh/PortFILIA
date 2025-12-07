@@ -1,0 +1,110 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+:root {
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  line-height: 1.6;
+  font-weight: 400;
+  
+  color: #1a1a1a;
+  background-color: #f5f5f0;
+  
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background-color: #f5f5f0;
+  color: #1a1a1a;
+}
+
+a {
+  color: #1a1a1a;
+  text-decoration: underline;
+  transition: opacity 0.2s;
+}
+
+a:hover {
+  opacity: 0.7;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+button {
+  border-radius: 4px;
+  border: 1px solid #1a1a1a;
+  padding: 0.6em 1.2em;
+  font-size: 0.9em;
+  font-weight: 500;
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  background-color: #1a1a1a;
+  color: #f5f5f0;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+button:hover {
+  background-color: #333;
+  border-color: #333;
+}
+
+button:focus,
+button:focus-visible {
+  outline: 2px solid #1a1a1a;
+  outline-offset: 2px;
+}
+
+button.secondary {
+  background-color: transparent;
+  color: #1a1a1a;
+  border-color: #1a1a1a;
+}
+
+button.secondary:hover {
+  background-color: #1a1a1a;
+  color: #f5f5f0;
+}
+
+input, textarea {
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  background-color: #ffffff;
+  border: 1px solid #1a1a1a;
+  color: #1a1a1a;
+  padding: 0.6em;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+input:focus, textarea:focus {
+  outline: 2px solid #1a1a1a;
+  outline-offset: 2px;
+}
+
+#app {
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+}
