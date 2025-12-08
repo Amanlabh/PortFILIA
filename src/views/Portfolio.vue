@@ -5,6 +5,7 @@
         <router-link to="/" class="logo">// PortFILIA</router-link>
         <div class="nav-links">
           <router-link to="/">Home</router-link>
+          <router-link v-if="currentUser" to="/dashboard">Dashboard</router-link>
           <router-link v-if="currentUser" to="/edit">Edit Portfolio</router-link>
         </div>
         <button class="nav-more" aria-label="More options" @click.stop="showNavMenu = !showNavMenu">

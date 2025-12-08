@@ -5,6 +5,7 @@
 CREATE TABLE IF NOT EXISTS profiles (
   id UUID REFERENCES auth.users(id) PRIMARY KEY,
   username TEXT UNIQUE,
+  custom_domain TEXT UNIQUE,
   email TEXT,
   name TEXT,
   bio TEXT,

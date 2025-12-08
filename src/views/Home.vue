@@ -4,6 +4,7 @@
       <div class="nav-content">
         <router-link to="/" class="logo">// PortFILIA</router-link>
         <div class="nav-links">
+          <router-link v-if="user" to="/dashboard">Dashboard</router-link>
           <router-link v-if="user" to="/edit">Edit Portfolio</router-link>
           <router-link v-else to="/login">Login</router-link>
         </div>

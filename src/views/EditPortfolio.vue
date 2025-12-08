@@ -7,6 +7,9 @@
           <router-link :to="`/portfolio/${profile?.username}`" v-if="profile?.username">
             View Portfolio
           </router-link>
+          <router-link to="/dashboard">
+            Dashboard
+          </router-link>
           <button @click="handleLogout" class="logout-btn">Logout</button>
         </div>
       </div>
@@ -66,41 +69,6 @@
         </div>
         
         <div class="form-section">
-          <h2>Theme</h2>
-          <p class="helper-text">Pick a look for your public portfolio. You can switch anytime.</p>
-          <div class="theme-grid">
-            <div
-              v-for="theme in themeOptions"
-              :key="theme.id"
-              :class="['theme-card', { active: formData.theme === theme.id }]"
-              @click="selectTheme(theme.id)"
-            >
-              <div class="theme-top">
-                <div>
-                  <p class="pill">{{ theme.category }}</p>
-                  <h3>{{ theme.name }}</h3>
-                  <p class="muted">{{ theme.description }}</p>
-                </div>
-                <button class="button secondary small" type="button">Use</button>
-              </div>
-              <div class="theme-preview" :class="theme.previewClass">
-                <div class="preview-hero"></div>
-                <div class="preview-row">
-                  <span class="preview-block"></span>
-                  <span class="preview-block short"></span>
-                </div>
-                <div class="preview-gallery">
-                  <span v-for="n in 3" :key="n" class="preview-tile"></span>
-                </div>
-              </div>
-              <div class="theme-tags">
-                <span v-for="tag in theme.tags" :key="tag" class="meta-tag">{{ tag }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <div class="form-section">
           <h2>Social Links</h2>
           <div class="form-group">
             <label>Website URL</label>
@@ -125,102 +93,6 @@
           <div class="form-group">
             <label>GitHub URL</label>
             <input v-model="formData.github_url" type="url" placeholder="https://github.com/..." />
-          </div>
-        </div>
-        
-        <div class="form-section">
-          <h2>Meeting Requests</h2>
-          <div class="meetings-tabs">
-            <button 
-              @click="meetingsTab = 'incoming'" 
-              :class="['tab-btn', { active: meetingsTab === 'incoming' }]"
-            >
-              Incoming ({{ incomingMeetings.length }})
-            </button>
-            <button 
-              @click="meetingsTab = 'outgoing'" 
-              :class="['tab-btn', { active: meetingsTab === 'outgoing' }]"
-            >
-              Outgoing ({{ outgoingMeetings.length }})
-            </button>
-            <button 
-              @click="meetingsTab = 'accepted'" 
-              :class="['tab-btn', { active: meetingsTab === 'accepted' }]"
-            >
-              Accepted ({{ acceptedMeetings.length }})
-            </button>
-          </div>
-          
-          <!-- Incoming Meetings -->
-          <div v-if="meetingsTab === 'incoming'" class="meetings-list">
-            <div v-if="incomingMeetings.length === 0" class="empty-state">
-              No incoming meeting requests
-            </div>
-            <div v-for="meeting in incomingMeetings" :key="meeting.id" class="meeting-item">
-              <div class="meeting-info">
-                <strong>{{ meeting.requester?.name || meeting.requester?.username }}</strong>
-                <p>{{ formatDateTime(meeting.scheduled_time) }}</p>
-                <p v-if="meeting.message" class="meeting-message">{{ meeting.message }}</p>
-                <a v-if="meeting.status === 'accepted'" :href="meeting.google_meet_link" target="_blank" class="meet-link">
-                  Join Google Meet →
-                </a>
-              </div>
-              <div v-if="meeting.status === 'pending'" class="meeting-actions">
-                <button @click="updateMeetingStatus(meeting.id, 'accepted')" class="button primary small">
-                  Accept
-                </button>
-                <button @click="updateMeetingStatus(meeting.id, 'declined')" class="button secondary small">
-                  Decline
-                </button>
-              </div>
-              <div v-else class="meeting-status">
-                <span :class="['status-badge', meeting.status]">{{ meeting.status }}</span>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Outgoing Meetings -->
-          <div v-if="meetingsTab === 'outgoing'" class="meetings-list">
-            <div v-if="outgoingMeetings.length === 0" class="empty-state">
-              No outgoing meeting requests
-            </div>
-            <div v-for="meeting in outgoingMeetings" :key="meeting.id" class="meeting-item">
-              <div class="meeting-info">
-                <strong>{{ meeting.recipient?.name || meeting.recipient?.username }}</strong>
-                <p>{{ formatDateTime(meeting.scheduled_time) }}</p>
-                <p v-if="meeting.message" class="meeting-message">{{ meeting.message }}</p>
-                <a v-if="meeting.status === 'accepted'" :href="meeting.google_meet_link" target="_blank" class="meet-link">
-                  Join Google Meet →
-                </a>
-              </div>
-              <div class="meeting-status">
-                <span :class="['status-badge', meeting.status]">{{ meeting.status }}</span>
-                <button v-if="meeting.status === 'pending'" @click="cancelMeeting(meeting.id)" class="button secondary small">
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Accepted Meetings -->
-          <div v-if="meetingsTab === 'accepted'" class="meetings-list">
-            <div v-if="acceptedMeetings.length === 0" class="empty-state">
-              No accepted meetings
-            </div>
-            <div v-for="meeting in acceptedMeetings" :key="meeting.id" class="meeting-item">
-              <div class="meeting-info">
-                <strong>
-                  {{ meeting.requester_id === profile?.id 
-                    ? (meeting.recipient?.name || meeting.recipient?.username)
-                    : (meeting.requester?.name || meeting.requester?.username)
-                  }}
-                </strong>
-                <p>{{ formatDateTime(meeting.scheduled_time) }}</p>
-                <a :href="meeting.google_meet_link" target="_blank" class="meet-link">
-                  Join Google Meet →
-                </a>
-              </div>
-            </div>
           </div>
         </div>
         
@@ -314,62 +186,11 @@ const formData = ref({
   avatar_url: ''
 })
 
-const meetingsTab = ref('incoming')
-const incomingMeetings = ref([])
-const outgoingMeetings = ref([])
-const acceptedMeetings = ref([])
-
 const newPost = ref({
   title: '',
   content: ''
 })
 
-const themeOptions = [
-  {
-    id: 'minimal',
-    name: 'Minimal Narrative',
-    description: 'Clean typography and linear storytelling.',
-    category: 'Minimal',
-    tags: ['Clean', 'Mono'],
-    previewClass: 'theme-minimal'
-  },
-  {
-    id: 'studio',
-    name: 'Studio Grid',
-    description: 'Gallery-forward layout for visuals.',
-    category: 'Visual',
-    tags: ['Gallery', 'Grid'],
-    previewClass: 'theme-studio'
-  },
-  {
-    id: 'tech',
-    name: 'Tech Resume',
-    description: 'Resume-inspired sections and stats.',
-    category: 'Professional',
-    tags: ['Cards', 'Stats'],
-    previewClass: 'theme-tech'
-  },
-  {
-    id: 'creator',
-    name: 'Creator Canvas',
-    description: 'Playful cards with color pops.',
-    category: 'Creator',
-    tags: ['Color', 'Cards'],
-    previewClass: 'theme-creator'
-  },
-  {
-    id: 'dark',
-    name: 'Dark Showcase',
-    description: 'High-contrast dark mode.',
-    category: 'Dark',
-    tags: ['Dark', 'Glow'],
-    previewClass: 'theme-dark'
-  }
-]
-
-const selectTheme = (id) => {
-  formData.value.theme = id
-}
 
 const loadProfile = async () => {
   try {
@@ -391,7 +212,7 @@ const loadProfile = async () => {
       profile.value = profileData
       Object.assign(formData.value, profileData)
       if (!formData.value.theme) {
-        formData.value.theme = localStorage.getItem('selectedTemplate') || themeOptions[0].id
+        formData.value.theme = localStorage.getItem('selectedTemplate') || 'minimal'
       }
     } else {
       // Create profile if doesn't exist (for Google OAuth users)
@@ -409,7 +230,7 @@ const loadProfile = async () => {
       if (createError) throw createError
       profile.value = newProfile
       Object.assign(formData.value, newProfile)
-      formData.value.theme = localStorage.getItem('selectedTemplate') || themeOptions[0].id
+      formData.value.theme = localStorage.getItem('selectedTemplate') || 'minimal'
     }
     
     // Load photos
@@ -616,97 +437,6 @@ const formatDate = (date) => {
   })
 }
 
-const loadMeetings = async () => {
-  if (!profile.value) return
-  
-  try {
-    // Load incoming meetings
-    const { data: incomingData } = await supabase
-      .from('meetings')
-      .select(`
-        *,
-        requester:profiles!meetings_requester_id_fkey(id, username, name, avatar_url)
-      `)
-      .eq('recipient_id', profile.value.id)
-      .order('created_at', { ascending: false })
-    
-    incomingMeetings.value = incomingData || []
-    
-    // Load outgoing meetings
-    const { data: outgoingData } = await supabase
-      .from('meetings')
-      .select(`
-        *,
-        recipient:profiles!meetings_recipient_id_fkey(id, username, name, avatar_url)
-      `)
-      .eq('requester_id', profile.value.id)
-      .order('created_at', { ascending: false })
-    
-    outgoingMeetings.value = outgoingData || []
-    
-    // Load accepted meetings (both incoming and outgoing)
-    const { data: acceptedData } = await supabase
-      .from('meetings')
-      .select(`
-        *,
-        requester:profiles!meetings_requester_id_fkey(id, username, name, avatar_url),
-        recipient:profiles!meetings_recipient_id_fkey(id, username, name, avatar_url)
-      `)
-      .eq('status', 'accepted')
-      .or(`requester_id.eq.${profile.value.id},recipient_id.eq.${profile.value.id}`)
-      .order('scheduled_time', { ascending: true })
-    
-    acceptedMeetings.value = acceptedData || []
-  } catch (err) {
-    console.error('Error loading meetings:', err)
-  }
-}
-
-const updateMeetingStatus = async (meetingId, status) => {
-  try {
-    const { error } = await supabase
-      .from('meetings')
-      .update({ status, updated_at: new Date().toISOString() })
-      .eq('id', meetingId)
-    
-    if (error) throw error
-    
-    await loadMeetings()
-  } catch (err) {
-    console.error('Error updating meeting:', err)
-    alert('Error: ' + err.message)
-  }
-}
-
-const cancelMeeting = async (meetingId) => {
-  if (!confirm('Cancel this meeting request?')) return
-  
-  try {
-    const { error } = await supabase
-      .from('meetings')
-      .update({ status: 'cancelled', updated_at: new Date().toISOString() })
-      .eq('id', meetingId)
-    
-    if (error) throw error
-    
-    await loadMeetings()
-  } catch (err) {
-    console.error('Error cancelling meeting:', err)
-    alert('Error: ' + err.message)
-  }
-}
-
-const formatDateTime = (dateString) => {
-  const date = new Date(dateString)
-  return date.toLocaleString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit'
-  })
-}
-
 const handleLogout = async () => {
   await supabase.auth.signOut()
   router.push('/')
@@ -714,7 +444,6 @@ const handleLogout = async () => {
 
 onMounted(async () => {
   await loadProfile()
-  await loadMeetings()
 })
 </script>
 
