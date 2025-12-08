@@ -66,6 +66,41 @@
         </div>
         
         <div class="form-section">
+          <h2>Theme</h2>
+          <p class="helper-text">Pick a look for your public portfolio. You can switch anytime.</p>
+          <div class="theme-grid">
+            <div
+              v-for="theme in themeOptions"
+              :key="theme.id"
+              :class="['theme-card', { active: formData.theme === theme.id }]"
+              @click="selectTheme(theme.id)"
+            >
+              <div class="theme-top">
+                <div>
+                  <p class="pill">{{ theme.category }}</p>
+                  <h3>{{ theme.name }}</h3>
+                  <p class="muted">{{ theme.description }}</p>
+                </div>
+                <button class="button secondary small" type="button">Use</button>
+              </div>
+              <div class="theme-preview" :class="theme.previewClass">
+                <div class="preview-hero"></div>
+                <div class="preview-row">
+                  <span class="preview-block"></span>
+                  <span class="preview-block short"></span>
+                </div>
+                <div class="preview-gallery">
+                  <span v-for="n in 3" :key="n" class="preview-tile"></span>
+                </div>
+              </div>
+              <div class="theme-tags">
+                <span v-for="tag in theme.tags" :key="tag" class="meta-tag">{{ tag }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="form-section">
           <h2>Social Links</h2>
           <div class="form-group">
             <label>Website URL</label>
@@ -264,6 +299,7 @@ const formData = ref({
   username: '',
   bio: '',
   about: '',
+  theme: '',
   location: '',
   skills: '',
   experience: '',
@@ -288,6 +324,53 @@ const newPost = ref({
   content: ''
 })
 
+const themeOptions = [
+  {
+    id: 'minimal',
+    name: 'Minimal Narrative',
+    description: 'Clean typography and linear storytelling.',
+    category: 'Minimal',
+    tags: ['Clean', 'Mono'],
+    previewClass: 'theme-minimal'
+  },
+  {
+    id: 'studio',
+    name: 'Studio Grid',
+    description: 'Gallery-forward layout for visuals.',
+    category: 'Visual',
+    tags: ['Gallery', 'Grid'],
+    previewClass: 'theme-studio'
+  },
+  {
+    id: 'tech',
+    name: 'Tech Resume',
+    description: 'Resume-inspired sections and stats.',
+    category: 'Professional',
+    tags: ['Cards', 'Stats'],
+    previewClass: 'theme-tech'
+  },
+  {
+    id: 'creator',
+    name: 'Creator Canvas',
+    description: 'Playful cards with color pops.',
+    category: 'Creator',
+    tags: ['Color', 'Cards'],
+    previewClass: 'theme-creator'
+  },
+  {
+    id: 'dark',
+    name: 'Dark Showcase',
+    description: 'High-contrast dark mode.',
+    category: 'Dark',
+    tags: ['Dark', 'Glow'],
+    previewClass: 'theme-dark'
+  }
+]
+
+const selectTheme = (id) => {
+  formData.value.theme = id
+}
+
 const loadProfile = async () => {
   try {
     const { data: { user } } = await supabase.auth.getUser()
@@ -307,6 +390,9 @@ const loadProfile = async () => {
     if (profileData) {
       profile.value = profileData
       Object.assign(formData.value, profileData)
+      if (!formData.value.theme) {
+        formData.value.theme = localStorage.getItem('selectedTemplate') || themeOptions[0].id
+      }
     } else {
       // Create profile if doesn't exist (for Google OAuth users)
       const { data: newProfile, error: createError } = await supabase
@@ -323,6 +409,7 @@ const loadProfile = async () => {
       if (createError) throw createError
       profile.value = newProfile
       Object.assign(formData.value, newProfile)
+      formData.value.theme = localStorage.getItem('selectedTemplate') || themeOptions[0].id
     }
     
     // Load photos
@@ -961,6 +1048,148 @@ onMounted(async () => {
   text-align: center;
   padding: 2rem;
   color: #666;
+}
+
+.helper-text {
+  color: #555;
+  margin-bottom: 1rem;
+}
+
+.theme-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+.theme-card {
+  border: 1px solid #1a1a1a;
+  border-radius: 8px;
+  padding: 1rem;
+  background: #fafafa;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.theme-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+}
+
+.theme-card.active {
+  border-color: #1a1a1a;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+  background: #ffffff;
+}
+
+.theme-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+}
+
+.theme-top h3 {
+  margin: 0.2rem 0;
+}
+
+.muted {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.6rem;
+  border: 1px solid #1a1a1a;
+  border-radius: 999px;
+  font-size: 0.8rem;
+}
+
+.theme-preview {
+  border: 1px solid #1a1a1a;
+  border-radius: 6px;
+  padding: 0.75rem;
+  background: linear-gradient(135deg, #f8f8f8, #ffffff);
+}
+
+.theme-preview .preview-hero {
+  height: 70px;
+  border-radius: 4px;
+  background: linear-gradient(120deg, #e0e7ff, #f5f3ff);
+  margin-bottom: 0.5rem;
+}
+
+.theme-preview .preview-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.theme-preview .preview-block {
+  height: 32px;
+  border-radius: 4px;
+  background: #eef2ff;
+}
+
+.theme-preview .preview-block.short {
+  background: #e0e7ff;
+}
+
+.theme-preview .preview-gallery {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.35rem;
+}
+
+.theme-preview .preview-tile {
+  height: 28px;
+  border-radius: 4px;
+  background: #d9e8ff;
+}
+
+.theme-tags {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-top: 0.75rem;
+}
+
+.meta-tag {
+  background: #1a1a1a;
+  color: #f5f5f0;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+.theme-studio .preview-hero {
+  background: linear-gradient(120deg, #ffe8d6, #ffd6a5);
+}
+
+.theme-tech .preview-hero {
+  background: linear-gradient(120deg, #d1fae5, #a7f3d0);
+}
+
+.theme-creator .preview-hero {
+  background: linear-gradient(120deg, #fde68a, #fcd34d);
+}
+
+.theme-dark {
+  background: #0f172a;
+  border-color: #0f172a;
+}
+
+.theme-dark .preview-hero {
+  background: linear-gradient(120deg, #1e293b, #0f172a);
+}
+
+.theme-dark .preview-block,
+.theme-dark .preview-block.short,
+.theme-dark .preview-tile {
+  background: #1f2937;
 }
 
 @media (max-width: 768px) {

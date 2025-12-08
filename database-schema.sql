@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS profiles (
   name TEXT,
   bio TEXT,
   about TEXT,
+  theme TEXT,
   avatar_url TEXT,
   linkedin_url TEXT,
   instagram_url TEXT,

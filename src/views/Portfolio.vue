@@ -7,6 +7,16 @@
           <router-link to="/">Home</router-link>
           <router-link v-if="currentUser" to="/edit">Edit Portfolio</router-link>
         </div>
+        <button class="nav-more" aria-label="More options" @click.stop="showNavMenu = !showNavMenu">
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+        </button>
+        <div v-if="showNavMenu" class="nav-dropdown">
+          <router-link to="/" @click="showNavMenu = false">Home</router-link>
+          <router-link v-if="currentUser" to="/edit" @click="showNavMenu = false">Edit Portfolio</router-link>
+          <router-link v-else to="/login" @click="showNavMenu = false">Login</router-link>
+        </div>
       </div>
     </nav>
     
@@ -216,7 +226,8 @@
     </div>
     
     <!-- Advertisement for non-logged-in users -->
-    <div v-if="!currentUser" class="portfolio-ad">
+    <div v-if="!currentUser && showAd" class="portfolio-ad">
+      <button class="ad-close" @click="showAd = false" aria-label="Close advertisement">×</button>
       <div class="ad-content">
         <h3>Create Your Own Portfolio</h3>
         <p>Showcase your work and connect with others</p>
@@ -224,10 +235,6 @@
       </div>
     </div>
     
-    <!-- Footer -->
-    <footer class="portfolio-footer">
-      <p>Start Portraying Today</p>
-    </footer>
   </div>
 </template>
 
@@ -253,6 +260,8 @@ const showFollowersModal = ref(false)
 const followersLoading = ref(false)
 const showMeetingModal = ref(false)
 const meetingLoading = ref(false)
+const showAd = ref(true)
+const showNavMenu = ref(false)
 const meetingForm = ref({
   google_meet_link: '',
   scheduled_time: '',
@@ -509,12 +518,29 @@ watch(showFollowersModal, (newVal) => {
   right: 30px;
   background: #1a1a1a;
   color: white;
-  padding: 1.5rem;
-  border-radius: 8px;
+  padding: 1.25rem;
+  border-radius: 10px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   z-index: 100;
-  max-width: 280px;
+  max-width: 260px;
   animation: slideIn 0.5s ease-out;
+}
+
+.ad-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 1.1rem;
+  padding: 0.2rem 0.4rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.ad-close:hover {
+  opacity: 0.8;
 }
 
 .portfolio-ad h3 {
@@ -544,24 +570,6 @@ watch(showFollowersModal, (newVal) => {
   background: #3a7bc8;
 }
 
-/* Footer Styles */
-.portfolio-footer {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  background: #1a1a1a;
-  color: white;
-  text-align: center;
-  padding: 1rem 0;
-  font-size: 1.1rem;
-  letter-spacing: 1px;
-}
-
-.portfolio-footer p {
-  margin: 0;
-}
-
 @keyframes slideIn {
   from {
     transform: translateY(20px);
@@ -585,9 +593,42 @@ watch(showFollowersModal, (newVal) => {
   gap: 1.5rem;
 }
 
+.nav-dropdown {
+  display: none;
+}
+
+.nav-more {
+  display: none;
+  background: transparent;
+  border: 1px solid #1a1a1a;
+  padding: 0.4rem 0.6rem;
+  border-radius: 6px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.nav-more .dot {
+  display: block;
+  width: 4px;
+  height: 4px;
+  background: #1a1a1a;
+  border-radius: 50%;
+  margin: 2px 0;
+}
+
+.nav-more:hover {
+  background: rgba(26, 26, 26, 0.08);
+}
+
 .nav-links a {
   text-decoration: none;
   color: #1a1a1a;
+}
+
+.nav-dropdown a {
+  text-decoration: none;
+  color: #1a1a1a;
+  font-weight: 600;
 }
 
 .portfolio-content {
@@ -1045,6 +1086,37 @@ watch(showFollowersModal, (newVal) => {
 }
 
 @media (max-width: 768px) {
+  .nav-links {
+    display: none;
+  }
+
+  .nav-more {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .nav-content {
+    position: relative;
+  }
+
+  .nav-dropdown {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    background: #ffffff;
+    border: 1px solid #1a1a1a;
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+    z-index: 200;
+    min-width: 180px;
+  }
+
   .portfolio-header {
     flex-direction: column;
   }
