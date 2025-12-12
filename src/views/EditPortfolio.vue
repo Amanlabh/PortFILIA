@@ -31,8 +31,21 @@
           </div>
           <div class="form-group">
             <label>Username (for URL)</label>
-            <input v-model="formData.username" type="text" placeholder="username" />
+            <input 
+              v-model="formData.username" 
+              type="text" 
+              placeholder="username" 
+              :class="{ 'error-input': usernameError }"
+              @blur="() => {
+                if (!formData.username) return
+                const error = validateUsername(formData.username)
+                usernameError = error || ''
+              }"
+            />
             <small>Your portfolio will be at: /portfolio/{{ formData.username || 'username' }}</small>
+            <div v-if="usernameError" class="error-message">
+              {{ usernameError }}
+            </div>
           </div>
           <div class="form-group">
             <label>Location</label>
@@ -165,6 +178,7 @@ const blogPosts = ref([])
 const loading = ref(true)
 const saving = ref(false)
 const showNewPost = ref(false)
+const usernameError = ref('')
 
 const formData = ref({
   name: '',
@@ -257,23 +271,68 @@ const loadProfile = async () => {
   }
 }
 
+const validateUsername = (username) => {
+  if (!username) return 'Username is required'
+  if (username.length < 3) return 'Username must be at least 3 characters'
+  if (!/^[a-z0-9_-]+$/.test(username)) {
+    return 'Username can only contain lowercase letters, numbers, underscores, and hyphens'
+  }
+  return null
+}
+
+const checkUsernameAvailability = async (username) => {
+  if (!username || username === profile.value?.username) return true
+  
+  const { data: existingProfile } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('username', username)
+    .neq('id', profile.value?.id)
+    .single()
+    
+  return !existingProfile
+}
+
 const saveProfile = async () => {
   saving.value = true
+  usernameError.value = ''
+  
   try {
     const { data: { user } } = await supabase.auth.getUser()
     
+    // Validate username
+    const validationError = validateUsername(formData.value.username)
+    if (validationError) {
+      usernameError.value = validationError
+      saving.value = false
+      return
+    }
+    
+    // Check if username is available
+    const isUsernameAvailable = await checkUsernameAvailability(formData.value.username)
+    if (!isUsernameAvailable) {
+      usernameError.value = 'Username is already taken. Please choose another.'
+      saving.value = false
+      return
+    }
+    
+    // If we get here, username is valid and available
     const { error } = await supabase
       .from('profiles')
-      .upsert({
-        id: user.id,
-        ...formData.value
+      .update({
+        ...formData.value,
+        updated_at: new Date().toISOString()
       })
+      .eq('id', user.id)
     
     if (error) throw error
     
+    // Update local profile data
+    profile.value = { ...profile.value, ...formData.value }
     alert('Portfolio saved successfully!')
   } catch (err) {
-    alert('Error saving portfolio: ' + err.message)
+    console.error('Save error:', err)
+    alert('Error saving portfolio: ' + (err.message || 'Unknown error'))
   } finally {
     saving.value = false
   }
